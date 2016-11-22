@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <iomanip>
+#include <exception>
 
 #ifdef USE_PROFIL
   #include "mcprofil.hpp"
@@ -34,20 +35,7 @@ using namespace mc;
 
 TV fun( TV x )
 {
-  int k, n = 5;
-  long double d1 = 1.0L;
 
-  TV t1;
-
-  t1 = x;
-
-  for( k = 1; k <= n; k++ )
-  {
-    d1 = 2.0 * d1;
-    t1 = t1 + sin (d1 * x) / d1;
-  }
-
-  return t1;
 }
 
 int main()
@@ -64,30 +52,14 @@ int main()
 #endif
 
   try{ 
-
-    int i, n = 1000000;
-    TV t1, t2;
-    long double acosarg, h, dppi, ans = 5.795776322412856L;
-    long double s1, threshold = 1e-14L;
-
-    acosarg = -1.0;
-    dppi = acos(acosarg);
-    s1 = 0.0;
-    h = dppi / n;
-
-    TM model( i, 4 );
-    TV X( &model, 0, I(0.0,dppi) );
-
-    for( i = 1; i < n; i++ )
-    {
-      long double left = (i-1)*h, center = i*h, right = (i+1)*h;
-      TV tmh( &model, i, I( left, right ));
-      t2 = fun (tmh);
-      t1 = t2;
-    }
-
-    MC B = t1.B();
-  } 
+    TMMC model( 2, 4 );
+    TVMC X( &model, 0, MC( I(0.0, 6.28), 3.14 ) );
+    TVMC Y = sin(X);
+    const double one = 1.0;
+    const double* onep = &one;
+    long double result = Y.P(onep);
+    cout << "Result: " << result << endl << "Bounds: " << Y.B() << endl;
+  }
 
 #ifndef USE_PROFIL
 #ifndef USE_FILIB
@@ -106,6 +78,10 @@ int main()
 	 << eObj.what() << endl
          << "Aborts." << endl;
     return eObj.ierr();
+  } catch (exception& e) {
+    cerr << "Error:" << endl
+         << e.what() << endl
+         << "Aborts." << endl;
   }
 
 #ifdef SAVE_RESULTS
