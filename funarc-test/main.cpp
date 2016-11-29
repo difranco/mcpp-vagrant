@@ -51,14 +51,18 @@ int main()
   res << scientific << setprecision(5) << right;
 #endif
 
-  try{ 
-    TMMC model( 2, 4 );
-    TVMC X( &model, 0, MC( I(0.0, 6.28), 3.14 ) );
-    TVMC Y = sin(X);
-    const double one = 1.0;
-    const double* onep = &one;
-    long double result = Y.P(onep);
-    cout << "Result: " << result << endl << "Bounds: " << Y.B() << endl;
+  try{
+    // ASSUME a finite-dimensional input space so as to be able to set the number of independent variables in the model
+    TMMC model( 1, 4 );
+    TVMC X( &model, 0, MC( I(0.0, 6.3), 3.14 ) );
+    TVMC Y = X;
+    for (int i = 0; i < 10; i++) {
+        Y = Y + 1;
+        cout << "Approximation info at iteration " << i << ": " << Y << endl;
+    }
+    double x[1] = { 1.0 };
+    long double result = Y.P(x);
+    cout << "Result: " << result << endl;
   }
 
 #ifndef USE_PROFIL
