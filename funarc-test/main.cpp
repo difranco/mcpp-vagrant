@@ -33,9 +33,17 @@ typedef mc::TVar<MC> TVMC;
 using namespace std;
 using namespace mc;
 
-TV fun( TV x )
+TVMC gravity( TVMC x1_0, long double m1, TVMC x2_0, long double m2, long double time)
+// returns new position of x1 computed by Euler integration
+// positions in meters, masses in kg, time in seconds
 {
+  long double G = 6.6740831e-11;
 
+  // force on x1
+  TVMC r = x1_0 - x2_0;
+  TVMC a1 = G*m2/((r)*(r));
+  TVMC x1 = x1_0 + a1 * time;
+  return x1;
 }
 
 int main()
@@ -52,16 +60,24 @@ int main()
 #endif
 
   try{
-    // ASSUME a finite-dimensional input space so as to be able to set the number of independent variables in the model
-    TMMC model( 1, 4 );
-    TVMC X( &model, 0, MC( I(0.0, 6.3), 3.14 ) );
-    TVMC Y = X;
-    for (int i = 0; i < 10; i++) {
-        Y = Y + 1;
-        cout << "Approximation info at iteration " << i << ": " << Y << endl;
+    double earth_radius = 6.371e6;
+    double initial_condition[2] = { earth_radius + 1.0, 0.1 };
+    // We construct a model with 2 variables, one for the Earth and another for a dropped ball
+    TMMC model( 2, 7 );
+    TVMC earth_position_0( &model, 0, MC( I(-1.0, 1.0), 0.0 ) );
+    TVMC ball_position_0( &model, 0, MC( I(earth_radius - 1.0, earth_radius + 10.0), 1.0 ) );
+    TVMC ball_position = ball_position_0;
+
+    long double earth_mass = 5.972e24;
+    long double ball_mass = 0.1;
+
+    for (int i = 1; i < 10; i++) {
+        ball_position = gravity(ball_position, ball_mass, earth_position_0, earth_mass, 1.0);
+        cout << "Approximation of ball position at second " << i << ": " << ball_position << endl;
+        cout << "Evaluated approximation of ball position at second " << i << ": " << ball_position.P(initial_condition) << endl;
     }
-    double x[1] = { 1.0 };
-    long double result = Y.P(x);
+    // evaluate position for initial conditions of ball at earth radius + 1 and earth at zero
+    long double result = ball_position.P(initial_condition);
     cout << "Result: " << result << endl;
   }
 
