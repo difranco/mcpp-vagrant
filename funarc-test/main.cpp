@@ -61,20 +61,20 @@ int main()
 
   try{
     double earth_radius = 6.371e6;
-    double initial_condition[2] = { earth_radius + 1.0, 0.1 };
+    double initial_condition[2] = { 0.1, earth_radius + 1.0 };
     // We construct a model with 2 variables, one for the Earth and another for a dropped ball
-    TMMC model( 2, 7 );
+    TMMC model( 2, 3 );
     TVMC earth_position_0( &model, 0, MC( I(-1.0, 1.0), 0.0 ) );
-    TVMC ball_position_0( &model, 0, MC( I(earth_radius - 1.0, earth_radius + 10.0), 1.0 ) );
+    TVMC ball_position_0( &model, 1, MC( I(earth_radius - 1.0, earth_radius + 10.0), earth_radius ) );
     TVMC ball_position = ball_position_0;
 
     long double earth_mass = 5.972e24;
     long double ball_mass = 0.1;
 
-    for (int i = 1; i < 10; i++) {
-        ball_position = gravity(ball_position, ball_mass, earth_position_0, earth_mass, 1.0);
+    for (int i = 0; i < 10; i++) {
         cout << "Approximation of ball position at second " << i << ": " << ball_position << endl;
         cout << "Evaluated approximation of ball position at second " << i << ": " << ball_position.P(initial_condition) << endl;
+        ball_position = gravity(ball_position, ball_mass, earth_position_0, earth_mass, 1.0);
     }
     // evaluate position for initial conditions of ball at earth radius + 1 and earth at zero
     long double result = ball_position.P(initial_condition);
