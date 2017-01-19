@@ -1,10 +1,10 @@
 # Executable name
-EXE = funarc-test
+EXE = funarc
 
 PATH_MC = /vagrant/MC++_1.0
 LIB_MC = -L$(PATH_MC)/lib
 INC_MC = -I$(PATH_MC)/include
-OBJS = main.o
+OBJS = funarc.o
 
 # Compilation options
 include $(PATH_MC)/src/makeoptions.mk
@@ -14,8 +14,8 @@ include $(PATH_MC)/src/makeoptions.mk
 $(EXE) : $(OBJS)
 	$(LINK) $(PROF) $(FLAGS_LINK) -o $(EXE) $(OBJS) $(LIB_MC) $(LIB_PROFIL) $(LIB_FILIB) -llapack
        
-main.o: main.cpp
-	$(CPP) -c $(PROF) $(FLAGS_CPP) $(INC_MC) $(INC_PROFIL) $(INC_FILIB) -o main.o main.cpp
+funarc.o: funarc.cpp
+	$(CPP) -c $(PROF) $(FLAGS_CPP) $(INC_MC) $(INC_PROFIL) $(INC_FILIB) -o funarc.o funarc.cpp
 
 #####
 
